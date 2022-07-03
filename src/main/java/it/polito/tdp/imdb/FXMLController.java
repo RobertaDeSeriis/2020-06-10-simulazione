@@ -7,6 +7,7 @@ package it.polito.tdp.imdb;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +36,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,16 +49,54 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
-
+    	txtResult.clear();
+    	
+    	if (this.boxAttore.getValue()!= null) {
+    	txtResult.appendText("Attori simili a: ");
+    	for (Actor a: model.getAdiacenti(boxAttore.getValue())) {
+    		txtResult.appendText(a+"\n");
+    		}
+    	}
+    	else {
+    		txtResult.appendText("Inserire un attore");
+    		
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
 
+    	txtResult.clear();
+    	String genere = this.boxGenere.getValue(); 
+    	
+    	if (genere != null) {
+    		txtResult.appendText(model.creaGrafo(genere));
+    		this.boxAttore.getItems().clear(); //ricorda il .clear
+    		this.boxAttore.getItems().addAll(model.getActors());
+    		this.btnSimili.setDisable(false);
+    		this.btnSimulazione.setDisable(false);
+    	}
+    	else {
+    		txtResult.setText("Inserire il genere");
+    	}
+    	
+    	
+    
+    	
+    	
+    	
     }
 
     @FXML
     void doSimulazione(ActionEvent event) {
+    	txtResult.clear();
+    	try {
+    		int n; 
+    		n=Integer.parseInt(this.txtGiorni.getText()); 
+    	}
+    	catch(NumberFormatException e){
+    		txtResult.appendText("Inserire il numero di giorni");
+    	}
 
     }
 
@@ -75,5 +114,9 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+   
+    	this.boxGenere.getItems().addAll(model.getGenere());
+    	this.btnSimili.setDisable(true);
+    	this.btnSimulazione.setDisable(true);
     }
 }
