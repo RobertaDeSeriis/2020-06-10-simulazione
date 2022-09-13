@@ -72,7 +72,7 @@ public class Actor implements Comparable<Actor>{
 	@Override
 	public int compareTo(Actor o) {
 		
-		return this.lastName.compareTo(o.lastName);
+		return this.lastName.compareTo(o.lastName); //ordine alfabetico per cognome
 	}
     // gli interi si comparano con il meno
 	// le stringhe con il compare to

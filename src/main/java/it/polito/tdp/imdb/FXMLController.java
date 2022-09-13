@@ -5,9 +5,11 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.imdb.model.Actor;
+import it.polito.tdp.imdb.model.Adiacenza;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -50,38 +52,23 @@ public class FXMLController {
     @FXML
     void doAttoriSimili(ActionEvent event) {
     	txtResult.clear();
+    	Actor a= this.boxAttore.getValue();
+    	txtResult.appendText("Attori simili a: "+"\n");
+    	if(a!=null) {
+    		txtResult.appendText(model.getAdiacenti(a)+"\n");
+    	}
     	
-    	if (this.boxAttore.getValue()!= null) {
-    	txtResult.appendText("Attori simili a: ");
-    	for (Actor a: model.getAdiacenti(boxAttore.getValue())) {
-    		txtResult.appendText(a+"\n");
-    		}
-    	}
-    	else {
-    		txtResult.appendText("Inserire un attore");
-    		
-    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
     	txtResult.clear();
-    	String genere = this.boxGenere.getValue(); 
-    	
-    	if (genere != null) {
-    		txtResult.appendText(model.creaGrafo(genere));
-    		this.boxAttore.getItems().clear(); //ricorda il .clear
-    		this.boxAttore.getItems().addAll(model.getActors());
-    		this.btnSimili.setDisable(false);
-    		this.btnSimulazione.setDisable(false);
-    	}
-    	else {
-    		txtResult.setText("Inserire il genere");
+    	String g= this.boxGenere.getValue();
+    	if(g!=null) {
+    		txtResult.appendText(model.creaGrafo(g));
     	}
     	
-    	
-    
+    	this.boxAttore.getItems().addAll(model.getVertici());
     	
     	
     	
@@ -89,15 +76,7 @@ public class FXMLController {
 
     @FXML
     void doSimulazione(ActionEvent event) {
-    	txtResult.clear();
-    	try {
-    		int n; 
-    		n=Integer.parseInt(this.txtGiorni.getText()); 
-    	}
-    	catch(NumberFormatException e){
-    		txtResult.appendText("Inserire il numero di giorni");
-    	}
-
+    
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -114,9 +93,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
-   
-    	this.boxGenere.getItems().addAll(model.getGenere());
-    	this.btnSimili.setDisable(true);
-    	this.btnSimulazione.setDisable(true);
+    	this.boxGenere.getItems().addAll(model.getGeneri());
     }
 }

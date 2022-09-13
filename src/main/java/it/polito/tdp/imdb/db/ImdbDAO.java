@@ -39,7 +39,7 @@ public class ImdbDAO {
 		  }
 		 }
 	
-	/*public List<Actor> listAllActors(){
+	public List<Actor> listAllActors(){
 		String sql = "SELECT * FROM actors";
 		List<Actor> result = new ArrayList<Actor>();
 		Connection conn = DBConnect.getConnection();
@@ -61,7 +61,7 @@ public class ImdbDAO {
 			e.printStackTrace();
 			return null;
 		}
-	}*/
+	}
 	
 	public List<String> listGeneri(){
 		String sql = "select distinct genre from movies_genres ORDER BY genre";
@@ -109,62 +109,62 @@ public class ImdbDAO {
 		}
 	}
 	
-	public List<Actor> getVertici(String g, Map<Integer, Actor> idMap) {
-		String sql= "SELECT DISTINCT a.* "
-				+ "FROM  roles r, movies_genres md, actors a "
-				+ "WHERE r.actor_id=a.id AND md.movie_id=r.movie_id AND "
-				+ "md.genre=? ";
-		List<Actor> result= new ArrayList<>(); 
-		
+	public List<Actor> listVertici(String g, Map<Integer, Actor> idMap){
+		String sql = "SELECT DISTINCT a.* "
+				+ "FROM roles r, movies_genres mg, actors a "
+				+ "WHERE r.movie_id= mg.movie_id AND a.id=r.actor_id "
+				+ "AND mg.genre=? "
+				+ "order by a.last_name ";
+		List<Actor> result = new ArrayList<Actor>();
+		Connection conn = DBConnect.getConnection();
+
 		try {
-			Connection conn= DBConnect.getConnection(); 
-			PreparedStatement st= conn.prepareStatement(sql);
+			PreparedStatement st = conn.prepareStatement(sql);
 			st.setString(1, g);
 			ResultSet res = st.executeQuery();
-			
 			while (res.next()) {
+
 				Actor actor = new Actor(res.getInt("id"), res.getString("first_name"), res.getString("last_name"),
 						res.getString("gender"));
 				idMap.put(res.getInt("id"), actor);
 				result.add(actor);
 			}
 			conn.close();
+			return result;
 			
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new RuntimeException("SQL Error"); //la runniamo
+			return null;
 		}
-		return result; 
 	}
 	
-	public List<Adiacenza> getArchi(String g, Map<Integer, Actor> idmap){
-		String sql="SELECT a1.id, a2.id, COUNT(mg.movie_id) AS peso "
-				+ "FROM actors a1, actors a2, roles r1, roles r2, movies_genres mg "
-				+ "WHERE  mg.genre=? AND a1.id>a2.id "
-				+ "AND a1.id=r1.actor_id AND a2.id=r2.actor_id "
-				+ "AND mg.movie_id=r1.movie_id AND mg.movie_id=r2.movie_id "
-				+ "GROUP BY a1.id, a2.id ";
-		List<Adiacenza> result=  new ArrayList<>(); 
-		
+	public List<Adiacenza> listArchi(String g, Map<Integer, Actor> idMap){
+		String sql = "SELECT DISTINCT r.actor_id, r1.actor_id, COUNT(mg.movie_id) AS peso "
+				+ "FROM roles r, roles r1, movies_genres mg "
+				+ "WHERE r.movie_id= mg.movie_id  "
+				+ "AND r1.movie_id=mg.movie_id "
+				+ "AND r.actor_id>r1.actor_id "
+				+ "AND mg.genre=? "
+				+ "GROUP BY r.actor_id, r1.actor_id ";
+		List<Adiacenza> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
 		try {
-			Connection conn= DBConnect.getConnection(); 
-			PreparedStatement st= conn.prepareStatement(sql);
+			PreparedStatement st = conn.prepareStatement(sql);
 			st.setString(1, g);
 			ResultSet res = st.executeQuery();
-			
 			while (res.next()) {
-				result.add(new Adiacenza(idmap.get(res.getInt("a1.id")), idmap.get(res.getInt("a2.id")), res.getInt("peso"))); 
+
+				Adiacenza a = new Adiacenza(idMap.get(res.getInt("r.actor_id")), idMap.get(res.getInt("r1.actor_id")), res.getInt("peso"));
+				result.add(a);
 			}
 			conn.close();
+			return result;
 			
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new RuntimeException("SQL Error"); //la runniamo
+			return null;
 		}
-		return result; 
 	}
-	
-	
-	
 	
 }
